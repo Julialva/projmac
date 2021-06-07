@@ -33,24 +33,27 @@ class Mecanismo:
         ax.axline(((x_biela+x_motor),deslocamento),slope=slope,color="green",linestyle="--",linewidth=0.5)
         ax.plot(x_intercept,y_intercept,"kD")
         plt.show()
-    def Vel_Cir(self,motor_cir,elos=[],vel_motor=0,vel_in_rpm=True):
+    def Vel_Ang_motor(self,vel_motor=0,vel_in_rpm=True):
         if vel_in_rpm:
-            vel_ang_barra1 = (math.pi*2*vel_motor)/60 #vel in rad/s
+            return (math.pi*2*vel_motor)/60 #vel in rad/s
         else:
-            vel_ang_barra1 = vel_motor
-        vel_ponto = elos[0]*vel_ang_barra1
-        vel_ang_bc = vel_ponto/motor_cir
-        return vel_ang_bc,vel_ponto
-    def v_pistao(self,biela_cir,vel_ang_bc):
-        return vel_ang_bc*(biela_cir)
+            return vel_motor
+    def Vel_Ponto(self,vetor,vel_ang_barra):
+        return vetor*vel_ang_barra
+    def Vel_Ang(self,vetor,vel_ponto):
+        vel_ang = vel_ponto/vetor
+        return vel_ang
 mec = Mecanismo()
 
-motor_cir_module,biela_cir,x_motor,y_motor,x_biela,deslocamento,slope,x_intercept,y_intercept= mec.mec_BielaEx([0.127,0.508],225,-0.127)
-vel_ang_bc,vel_ponto = mec.Vel_Cir(motor_cir_module,elos=[0.127,0.508],vel_motor=-50,vel_in_rpm=False)
-v_pistao = mec.v_pistao(biela_cir,vel_ang_bc)
-print(vel_ponto)
+motor_cir,biela_cir,x_motor,y_motor,x_biela,deslocamento,slope,x_intercept,y_intercept= mec.mec_BielaEx([0.09 , 0.300],180,0.150)
+vel_ang_ab = mec.Vel_Ang_motor(vel_motor=954.96,vel_in_rpm=True)
+Vel_b = mec.Vel_Ponto(0.09,vel_ang_ab)
+vel_ang_bc= mec.Vel_Ang(motor_cir,Vel_b)
+Vel_c = mec.Vel_Ponto(biela_cir,vel_ang_bc)
+print(vel_ang_ab)
+print(Vel_b)
 print(vel_ang_bc)
-print(v_pistao)
+print(Vel_c)
 mec.plot_mec_BielaEx(x_motor,y_motor,x_biela,deslocamento,slope,x_intercept,y_intercept)
 # def plot_mec_BielaEx(self,elos=[], ang=0,deslocamento=0,vert=True):
 #         ang = np.deg2rad(ang)
