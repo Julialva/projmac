@@ -48,7 +48,7 @@ class Mecanismo:
 mec = Mecanismo()
 
 motor_cir_module,biela_cir= mec.plot_mec_BielaEx([127,508],225,-127)
-vel_ang_bc = mec.Vel_Cir(motor_cir_module,elos=[127,508],vel_motor=954.96)
+vel_ang_bc = mec.Vel_Cir(motor_cir_module,elos=[127,508],vel_motor=-50,vel_in_rpm=False)
 v_pistao = mec.v_pistao(biela_cir,vel_ang_bc)
 print(vel_ang_bc)
 print(v_pistao)
