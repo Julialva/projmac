@@ -40,23 +40,10 @@ class Mecanismo:
         b_motor = -x_motor*np.tan(ang)+y_motor
         b_incog = -(x_incog)*np.tan(teta4) + y_incog
         x_intercept = (b_incog-b_motor)/(np.tan(ang)-np.tan(teta4))
-        y_intercept = x_motor*np.tan(ang)+b_motor
+        y_intercept = x_intercept*np.tan(ang)+b_motor
         cir_b = math.sqrt(pow(x_motor-x_intercept,2) + pow(y_motor-y_intercept,2))
         cir_c = math.sqrt(pow(x_incog-x_intercept,2) + pow(y_incog-y_intercept,2))
         return x_motor,y_motor,x_incog,y_incog,cir_b,cir_c
-
-    def plot_mec_4barras_pos(self,x_motor,y_motor,x_incog,y_incog,elos):
-        fig = plt.figure(figsize=(10,10))
-        ax = plt.subplot(111)
-        ax.plot([0,x_motor],[0,y_motor])
-        ax.plot([x_motor,x_incog],[y_motor,y_incog])
-        ax.plot([x_incog,elos[3]],[y_incog,0])
-        ax.plot([elos[3],0],[0,0])
-        '''print(x_motor,y_motor,x_elo2_pos,y_elo2_pos,x_intercept_pos,y_intercept_pos,elos,ang,ang2)
-        ax.axline((x_intercept_pos,y_intercept_pos),slope=np.tan(np.radians(ang2)),linestyle="--",linewidth=0.5)
-        ax.axline((x_intercept_pos,y_intercept_pos),slope=np.tan(ang),linestyle="--",linewidth=0.5)
-        ax.plot(x_intercept_pos,y_intercept_pos,"kD")'''
-        plt.show()
     def mec_BielaEx(self,elos=[], ang=0,deslocamento=0,vert=True,quadrant_shift=False):
         if quadrant_shift:
             x_motor,y_motor = self.pos_elo_ang(elos[0],ang)
