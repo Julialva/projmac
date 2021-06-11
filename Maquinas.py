@@ -24,7 +24,6 @@ class Mecanismo:
             y_motor = elo*np.sin(ang)
             return x_motor,y_motor
     def find_teta4(self,elos=[],ang=0):
-        ang=np.deg2rad(ang)
         k1_1 = K1(elos[3], elos[0])
         k2_1 = K2(elos[3], elos[2])
         k3_1 = K3(elos[0],elos[1], elos[2], elos[3])
@@ -35,7 +34,7 @@ class Mecanismo:
         return teta4_pos,teta4_neg,ang
     def mec_4barras(self,elos,teta4,ang):
         x_motor,y_motor = self.pos_elo_ang(elos[0],ang)
-        y_incog,x_incog = self.pos_elo_ang(elos[2],teta4)
+        x_incog,y_incog = self.pos_elo_ang(elos[2],teta4)
         y_incog = y_incog
         x_incog = x_incog+elos[3]
         b_motor = -x_motor*np.tan(ang)+y_motor
