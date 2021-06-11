@@ -20,35 +20,49 @@ class Mecanismo:
         vel_ang = vel_ponto/vetor
         return vel_ang
     def pos_elo_ang(self,elo,ang):
-        ang = np.deg2rad(ang)
-        x_motor = elo*np.cos(ang)
-        y_motor = elo*np.sin(ang)
-        return x_motor,y_motor
-    def mec_4Barras(self,elos=[],ang=0):
+            x_motor = elo*np.cos(ang)
+            y_motor = elo*np.sin(ang)
+            return x_motor,y_motor
+    def find_teta4(self,elos=[],ang=0):
+        ang=np.deg2rad(ang)
         k1_1 = K1(elos[3], elos[0])
         k2_1 = K2(elos[3], elos[2])
         k3_1 = K3(elos[0],elos[1], elos[2], elos[3])
         A1 = A(ang, k1_1, k2_1, k3_1)
         B1 = B(ang)
         C1 = C(k1_1, k2_1, k3_1, ang)
-        teta4_pos,teta4_neg = teta4(A1, B1, C1)
+        teta4_neg,teta4_pos = teta4(A1, B1, C1) 
+        return teta4_pos,teta4_neg,ang
+    def mec_4barras(self,elos,teta4,ang):
         x_motor,y_motor = self.pos_elo_ang(elos[0],ang)
-        x_elo2_pos,y_elo2_pos = self.pos_elo_ang(elos[2],teta4_pos)
-        x_elo2_neg,y_elo2_neg = self.pos_elo_ang(elos[2],teta4_neg)
-        b_motor = -x_motor*np.tan(ang) + y_motor 
-        b_elo2_pos = -(elos[3]+x_elo2_pos)*np.tan(teta4_pos) + y_elo2_pos
-        b_elo2_neg = -(elos[3]+x_elo2_neg)*np.tan(teta4_neg) + y_elo2_neg
-        x_intercept_pos = (b_motor-b_elo2_pos)/(np.tan(teta4_pos)-np.tan(ang))
-        x_intercept_neg = (b_motor-b_elo2_neg)/(np.tan(teta4_neg)-np.tan(ang))
-        y_intercept_pos = x_intercept_pos*np.tan(ang)+b_motor
-        y_intercept_neg = x_intercept_neg*np.tan(ang)+b_motor
-        motor_cir_pos = math.sqrt((x_motor-x_intercept_pos)**2 + (y_motor-y_intercept_pos)**2)
-        elo2_cir_pos = math.sqrt(((x_elo2_pos+elos[3])-x_intercept_pos)**2 + (y_elo2_pos-y_intercept_pos)**2)
-        motor_cir_neg = math.sqrt((x_motor-x_intercept_neg)**2 + (y_motor-y_intercept_neg)**2)
-        elo2_cir_neg = math.sqrt(((x_elo2_neg+elos[3])-x_intercept_neg)**2 + (y_elo2_neg-y_intercept_neg)**2)
-        return x_motor,y_motor,x_intercept_pos,x_intercept_neg,y_intercept_pos,y_elo2_neg,x_intercept_pos,x_intercept_neg,y_intercept_pos,y_intercept_neg,motor_cir_pos,motor_cir_neg,elo2_cir_pos,elo2_cir_neg
-    def mec_BielaEx(self,elos=[], ang=0,deslocamento=0,vert=True):
-        x_motor,y_motor = self.pos_elo_ang(elos[0],ang)
+        y_incog,x_incog = self.pos_elo_ang(elos[2],teta4)
+        y_incog = y_incog
+        x_incog = x_incog+elos[3]
+        b_motor = -x_motor*np.tan(ang)+y_motor
+        b_incog = -(x_incog)*np.tan(teta4) + y_incog
+        x_intercept = (b_incog-b_motor)/(np.tan(ang)-np.tan(teta4))
+        y_intercept = x_motor*np.tan(ang)+b_motor
+        cir_b = math.sqrt(pow(x_motor-x_intercept,2) + pow(y_motor-y_intercept,2))
+        cir_c = math.sqrt(pow(x_incog-x_intercept,2) + pow(y_incog-y_intercept,2))
+        return x_motor,y_motor,x_incog,y_incog,cir_b,cir_c
+
+    def plot_mec_4barras_pos(self,x_motor,y_motor,x_incog,y_incog,elos):
+        fig = plt.figure(figsize=(10,10))
+        ax = plt.subplot(111)
+        ax.plot([0,x_motor],[0,y_motor])
+        ax.plot([x_motor,x_incog],[y_motor,y_incog])
+        ax.plot([x_incog,elos[3]],[y_incog,0])
+        ax.plot([elos[3],0],[0,0])
+        '''print(x_motor,y_motor,x_elo2_pos,y_elo2_pos,x_intercept_pos,y_intercept_pos,elos,ang,ang2)
+        ax.axline((x_intercept_pos,y_intercept_pos),slope=np.tan(np.radians(ang2)),linestyle="--",linewidth=0.5)
+        ax.axline((x_intercept_pos,y_intercept_pos),slope=np.tan(ang),linestyle="--",linewidth=0.5)
+        ax.plot(x_intercept_pos,y_intercept_pos,"kD")'''
+        plt.show()
+    def mec_BielaEx(self,elos=[], ang=0,deslocamento=0,vert=True,quadrant_shift=False):
+        if quadrant_shift:
+            x_motor,y_motor = self.pos_elo_ang(elos[0],ang)
+        else:
+            y_motor,x_motor = self.pos_elo_ang(elos[0],ang)
         x_biela= math.sqrt(elos[1]**2 - (deslocamento - y_motor)**2)
         if vert:
             slope=90
@@ -66,9 +80,9 @@ class Mecanismo:
         ax = plt.subplot(111)
         ax.plot([0,x_motor],[0,y_motor])
         ax.plot([x_motor,(x_biela+x_motor)],[y_motor,deslocamento])
-        ax.axline((x_motor,y_motor),slope=(y_motor/x_motor),linestyle="--",linewidth=0.5)
+        ax.axline((x_motor,y_motor),slope=(y_motor/x_motor),color="purple",linestyle="--",linewidth=0.5)
         ax.axline(((x_biela+x_motor),deslocamento),slope=((deslocamento-y_motor)/((x_biela+x_motor)-x_motor)),color="purple",linestyle="--",linewidth=0.5)
-        ax.axline(((x_biela+x_motor),deslocamento),slope=slope,color="green",linestyle="--",linewidth=0.5)
+        ax.axline(((x_biela+x_motor),deslocamento),slope=slope,color="purple",linestyle="--",linewidth=0.5)
         ax.plot(x_intercept,y_intercept,"kD")
         plt.show()
 
