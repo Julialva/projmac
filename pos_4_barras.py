@@ -1,5 +1,4 @@
 import numpy as np
-
 def K1(d, a):
     K1 = d / a
     return K1
@@ -36,5 +35,5 @@ def teta3(teta2, teta4, a, b, c, d):
     else:
         teta3_pos_sen = np.arcsin((-a*np.sin(teta2) + c*np.sin(teta4_pos)) / b)
         teta3_neg_sen = np.arcsin((-a*np.sin(teta2) + c*np.sin(teta4_neg)) / b)
-    return (teta3_pos_sen, teta3_neg_sen)
+    return teta3_pos_sen, teta3_neg_sen
     
